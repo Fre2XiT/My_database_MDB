@@ -16,12 +16,11 @@ class BooksDataset(Dataset):
                 }
             },
             {
-                "$group": {
-                    "_id": "$_id",
-                    "name": { "$first": "$name" },
-                    "author": { "$first": "$author" },
-                    "genre": { "$first": "$genre" },
-                    "reviews": { "$push": "$reviews" }
+                "$project": {
+                    "name": 1,
+                    "author": 1,
+                    "genre": 1,
+                    "reviews.text": 1
                 }
             }
         ]
@@ -32,7 +31,7 @@ class BooksDataset(Dataset):
 
     def __getitem__(self, idx):
         book = self.books_data[idx]
-        reviews = [review['text'] for review_array in book['reviews'] for review in review_array]
+        reviews = [review['text'] for review in book['reviews']]
         return {
             'name': book['name'],
             'author': book['author'],
@@ -41,7 +40,7 @@ class BooksDataset(Dataset):
         }
 
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://user:root@cluster0.djza6my.mongodb.net/')
 
 # Create the database and collections
 db = client["Library"]
@@ -61,22 +60,3 @@ for batch in dataloader:
 
 num_requests = math.ceil(len(dataset) / 2)
 print(num_requests)
-
-
-    
-""" # Get all the books
-book_data = list(books.find({}))
-
-
-# Get all the books and their reviews using only 2 queries
-book_data = list(books.find({}))
-book_ids = [book["_id"] for book in book_data]
-reviews_data = list(reviews.find({"book_id": {"$in": book_ids}}))
-
-# Loop through the books and get the reviews for each book
-for book in book_data:
-    reviews_data_for_book = [review for review in reviews_data if review["book_id"] == book["_id"]]
-    print(f"{book['name']} has {len(reviews_data_for_book)} reviews") """
-
-
-
