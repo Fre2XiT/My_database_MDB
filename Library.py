@@ -24,6 +24,7 @@ class BooksDataset(Dataset):
                 }
             }
         ]
+       # print(self.pipeline)
 
         self.books_data = list(self.books.aggregate(self.pipeline))
 
@@ -40,19 +41,14 @@ class BooksDataset(Dataset):
             'reviews': reviews
         }
 
-# Connect to MongoDB
 client = MongoClient('mongodb+srv://user:root@cluster0.djza6my.mongodb.net/')
 
-# Create the database and collections
 db = client["Library"]
 
-# Create a dataset
 dataset = BooksDataset(db)
 
-# Create a dataloader
 dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
 
-# Iterate over the dataloader
 for batch in dataloader:
     for name, author, genre, reviews in zip(batch['name'], batch['author'], batch['genre'], batch['reviews']):
         print(f"Book: {name} by {author} ({genre})")
